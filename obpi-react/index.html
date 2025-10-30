@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>OBPI - React Desktop Environment</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
+    <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+
+    <!-- Prettier Code Formatter -->
+    <script src="https://unpkg.com/prettier@2.8.8/standalone.js"></script>
+    <script src="https://unpkg.com/prettier@2.8.8/parser-babel.js"></script>
+    <script src="https://unpkg.com/prettier@2.8.8/parser-html.js"></script>
+    <script src="https://unpkg.com/prettier@2.8.8/parser-typescript.js"></script>
+    <script src="https://unpkg.com/prettier@2.8.8/parser-postcss.js"></script>
+
+    <!-- Google Identity Services -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+              mono: ['Roboto Mono', 'monospace'],
+            },
+            colors: {
+              'obpi-dark-bg': '#1a1a2e',
+              'obpi-light-bg': '#e0e0e0',
+              'glass-dark': 'rgba(25, 25, 40, 0.7)',
+              'glass-light': 'rgba(255, 255, 255, 0.6)',
+              'glass-border-dark': 'rgba(255, 255, 255, 0.15)',
+              'glass-border-light': 'rgba(200, 200, 200, 0.3)',
+              'obpi-header-dark': 'rgba(44, 47, 59, 0.7)',
+              'obpi-header-light': 'rgba(82, 82, 91, 0.7)',
+              'obpi-accent': 'rgb(var(--color-accent) / <alpha-value>)',
+              'obpi-accent-darker': 'rgb(var(--color-accent-darker) / <alpha-value>)',
+            },
+            backdropBlur: {
+              'xl': '24px',
+            },
+            keyframes: {
+              fadeIn: {
+                '0%': { opacity: 0, transform: 'translateY(10px)' },
+                '100%': { opacity: 1, transform: 'translateY(0)' },
+              },
+              fadeInWindow: {
+                '0%': { opacity: 0, transform: 'scale(0.97)' },
+                '100%': { opacity: 1, transform: 'scale(1)' },
+              },
+              typing: {
+                "from": { width: "0" },
+                "to": { width: "100%" }
+              },
+              glow: {
+                '0%, 100%': { textShadow: '0 0 5px #0fa, 0 0 10px #0fa, 0 0 15px #0fa' },
+                '50%': { textShadow: '0 0 10px #0fa, 0 0 20px #0fa, 0 0 30px #0fa' },
+              },
+               'typing-short': { 'from': { width: '0' }, 'to': { width: '100%' } },
+               'typing-medium': { 'from': { width: '0' }, 'to': { width: '100%' } },
+               'typing-long': { 'from': { width: '0' }, 'to': { width: '100%' } },
+               'quick-settings-in': {
+                 '0%': { opacity: 0, transform: 'translateY(10px) scale(0.98)' },
+                 '100%': { opacity: 1, transform: 'translateY(0) scale(1)' },
+               },
+            },
+            animation: {
+              'fade-in-fast': 'fadeIn 0.2s ease-out',
+              'fade-in-window': 'fadeInWindow 0.15s ease-out forwards',
+              'typing': 'typing 2s steps(30, end)',
+              'glow': 'glow 2.5s infinite ease-in-out',
+              'typing-short': 'typing-short 1s steps(15, end) forwards',
+              'typing-medium': 'typing-medium 1.8s steps(28, end) forwards',
+              'typing-long': 'typing-long 2s steps(40, end) forwards',
+              'quick-settings-in': 'quick-settings-in 0.15s ease-out forwards',
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      :root {
+        --color-accent: 99 102 241; /* Default: #6366f1 */
+        --color-accent-darker: 79 70 229; /* Default: #4f46e5 */
+      }
+      body {
+        overscroll-behavior: none;
+        cursor: none;
+      }
+      body, .desktop-icon {
+        -webkit-user-select: none; /* Safari */
+        -ms-user-select: none; /* IE 10 and IE 11 */
+        user-select: none; /* Standard syntax */
+      }
+      * {
+        -webkit-tap-highlight-color: transparent;
+      }
+      input, textarea {
+        cursor: text;
+        -webkit-user-select: text;
+        -ms-user-select: text;
+        user-select: text;
+      }
+      .os-window {
+        min-width: 280px;
+        min-height: 180px;
+      }
+      .resize-handle {
+        position: absolute;
+        width: 12px;
+        height: 12px;
+        z-index: 10;
+      }
+      .resize-handle-br { bottom: -6px; right: -6px; cursor: se-resize; }
+      .resize-handle-bl { bottom: -6px; left: -6px; cursor: sw-resize; }
+      .resize-handle-tr { top: -6px; right: -6px; cursor: ne-resize; }
+      .resize-handle-tl { top: -6px; left: -6px; cursor: nw-resize; }
+      .resize-handle-t { top: -6px; left: 50%; transform: translateX(-50%); width: calc(100% - 12px); height: 12px; cursor: n-resize; }
+      .resize-handle-b { bottom: -6px; left: 50%; transform: translateX(-50%); width: calc(100% - 12px); height: 12px; cursor: s-resize; }
+      .resize-handle-l { left: -6px; top: 50%; transform: translateY(-50%); height: calc(100% - 12px); width: 12px; cursor: w-resize; }
+      .resize-handle-r { right: -6px; top: 50%; transform: translateY(-50%); height: calc(100% - 12px); width: 12px; cursor: e-resize; }
+
+      /* Custom scrollbar hiding utility */
+      .no-scrollbar::-webkit-scrollbar {
+          display: none;
+      }
+      .no-scrollbar {
+          -ms-overflow-style: none;  /* IE and Edge */
+          scrollbar-width: none;  /* Firefox */
+      }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "uuid": "https://aistudiocdn.com/uuid@^13.0.0",
+    "pako": "https://aistudiocdn.com/pako@^2.1.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.27.0",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "three": "https://aistudiocdn.com/three@^0.180.0",
+    "@testing-library/react": "https://aistudiocdn.com/@testing-library/react@^16.3.0",
+    "@testing-library/jest-dom": "https://aistudiocdn.com/@testing-library/jest-dom@^6.9.1",
+    "@jest/globals": "https://aistudiocdn.com/@jest/globals@^30.2.0"
+  }
+}
+</script>
+<script>
+  // BIOS Pre-flight Check (Power-On Self-Test)
+  (function() {
+    var checks = [
+      { name: 'LocalStorage', test: function() { try { return 'localStorage' in window && window['localStorage'] !== null; } catch(e) { return false; } } },
+      { name: 'ESModules', test: function() { var s = document.createElement('script'); return 'noModule' in s; } },
+      { name: 'RequestAnimationFrame', test: function() { return 'requestAnimationFrame' in window; } },
+      { name: 'WebAssembly', test: function() { return typeof WebAssembly === 'object' && typeof WebAssembly.instantiate === 'function'; } }
+    ];
+
+    var failedChecks = checks.filter(function(check) {
+      return !check.test();
+    });
+
+    if (failedChecks.length > 0) {
+      var errorMessage = 'FATAL: System requirements not met. Cannot boot OBPI OS.\n\nFailed Checks:\n' +
+        failedChecks.map(function(check) { return '- ' + check.name; }).join('\n');
+      
+      window.addEventListener('load', function() {
+        document.body.innerHTML = '<div style="position:fixed;inset:0;background:black;color:red;font-family:monospace;white-space:pre;padding:20px;">' + errorMessage + '</div>';
+      });
+      // Prevent the main app from loading
+      window.stop();
+      throw new Error(errorMessage);
+    }
+  })();
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body class="font-sans antialiased overflow-hidden">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx" defer></script>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>

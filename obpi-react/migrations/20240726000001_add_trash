@@ -1,0 +1,8 @@
+-- migrations/20240726000001_add_trash.sql
+
+-- Add columns to support a trash/recycle bin feature
+ALTER TABLE files ADD COLUMN is_trashed BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE files ADD COLUMN trashed_at TIMESTAMP;
+
+-- Add an index for efficiently querying trashed files
+CREATE INDEX IF NOT EXISTS idx_files_trashed ON files (owner_id, is_trashed);

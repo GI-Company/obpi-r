@@ -1,0 +1,7 @@
+{
+  "name": "OBPI React Desktop",
+  "description": "A virtual desktop environment running in the browser, built with React. It features a window manager, a virtual file system, a terminal, and applications including a PEPx Pixel Storage Explorer powered by Gemini.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
